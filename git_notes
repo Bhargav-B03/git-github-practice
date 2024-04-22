@@ -1,0 +1,389 @@
+Git Commands :-
+
+1) amend :
+-> In the case if we forgot to include any file in commiting the change or we want to edit our (last) commit message. It lets us edit our last commit message and even let us add any other files for commit which might we forgot for some reason. 
+
+For adding a file we have to type regular command of adding file to change and then we write this amend command.
+    
+    git commit --amend
+
+
+2) switch :
+-> git switch -c newBranch : will create a new branch which does not exist and then perform switching.
+
+
+3) checkout :
+-> checkout does a lot of work. It can perform various types of operations. Some of them are listed below.
+
+Commands:
+    git checkout <commit-hash>  ~ takes back to the particular commit
+
+    git checkout HEAD~1  
+    ~ takes back to previous commit and can take back further according to value specified at HEAD~<number>
+
+    git checkout -
+    ~ to come back to the branch we left before detaching the HEAD. 
+
+    git checkout HEAD <filename(s)>  [or]  git checkout -- <filename(s)> 
+    ~ to comeback to HEAD for a specific file
+
+
+4) restore :
+-> restore does the same work as checkout. It was introduced potentially to reduce the workload of checkout command.
+
+Commands:
+    git restore <filename(s)>  ~ restores the commit from last HEAD
+
+    git restore --source HEAD~2 <filename(s)>
+    ~ To bring the change in file of a specific commit. Here hash of the particular commit can also be specified in place of HEAD~2
+
+-> Other than that, restore also helps us to unstage a staged file.
+
+    git restore --staged <filename(s)>
+
+
+5) reset :
+-> There are two type of reset.
+    7.1) Normal Reset
+    7.2) Hard Reset
+
+    7.1) Normal Reset :
+    -> removes commits from repository till the specified commit hash. *But changes made into current working directory persists*
+
+        git reset <commit-hash>
+
+    7.2) Hard Reset :
+    -> removes commits from *repository as well as from the current working directory*.
+
+        git reset --hard <commit-hash>
+
+-> The main advantage of this is we can remove unwanted commits from repository and carry them with us to any other branch to apply them over there if we want.
+
+
+6) revert :
+-> Revert does same as reset, but in a different way. Revert does not alter the commit history, but it makes a new commit which undos the changes of commits we specified.
+
+    git revert <commit-hash>
+
+
+7) diff :
+-> "git diff" shows us all unstaged changes made to the file
+
+-> "git diff --staged" or "git diff --cached" shows us all staged changes into the file
+
+-> "git diff HEAD" shows us all the changes (staged as well as unstaged)
+
+-> "git diff HEAD --staged <filename(s)>" shows us changes made into that particular staged file
+
+-> We can also compare two branches with the help of diff command
+    git diff master..odd-numbers 
+    [or]
+    git diff odd-numbers master
+
+-> We can also compare changes in the file with the help of HEAD pointers. Previous commit HEAD pointer is known as HEAD~1 and so on.
+    git diff HEAD HEAD~1
+    [or]
+    git diff HEAD~1 (it reverts the output of comparision but can be used)
+
+-----------------------
+NOTE:- Here HEAD~1, HEAD~2 are parent, grandparent commits of current HEAD respectively.
+-----------------------
+
+
+8) stash :
+-> stash stores changes into a structure so that we can change the branch in the middle of the work leaving it in safe hands. Once we come back to the working directory, we can retrieve the changed back and work back upon it.
+
+-> "git stash" [or] "git stash save"  ~ saves the untracked or tracked work
+
+-> "git stash pop"  ~ To pop out the work saved into stash
+
+-> "git stash apply"  ~ unlike pop, it still stores the changes into stash after applying it. So that we can use it at multiple places. 
+
+-> "git stash apply stash@{1}"  ~ To apply specific changes from stash list 
+-----------------------
+NOTE:- If we apply this command and before that we have uncommited operations on that file, then we get a kind of warning to commit those changes first. And application of this command just pauses.
+-----------------------
+
+-> To drop a particular stash we have one command,
+    git stash drop stash@{2}  ~ will drop the stash stored at second index in stash list.
+
+-> To clear whole stash list,
+    git stash clear
+
+-----------------------
+NOTE :
+=> Make sure to commit or stash the changes made into the files before leaving the current branch, otherwise they may get lost. 
+-----------------------
+
+=> Git warns us and prevent the switching when we forget to commit a file and go for branch switching if that file is associated with other branches too. If the file is newly created and we do switching, that file comes with us in that branch in untracked state.
+
+
+#MISCELLANEOUS :
+
+    git log --oneline  
+    ~ (--oneline) prints all the logs with one line of commit messages
+
+    git branch -M <branch-new-name>
+    ~ To change the branch name
+
+    git commit -am "message" (git commit -a -m "message")
+    ~ It automatically stage all the changes in tracked files and then perform commit. (So we do not need to write git add . command separately)
+    ~ But -a option automatically only stage all tracked, modified files before the commit, if there is new file present then we would do it manually using git add .
+
+
+*** Branch Deleting *** 
+-> If we try to delete a branch from being in that branch, we can't because we are in that branch. We cannot delete a branch while being in that branch. We need to switch to another branch and then perform the action again for successfull result.
+
+~~~~~~~~~~~~~~~~~~~~~~~
+SPECIAL CASE : 
+-> If we create branch using following command,
+
+    git switch -c deleteMe
+
+then we are immediately redirected to that branch. and from that branch we cannot delete it (off course). But astonishingly, we cannot delete it after switching to any other branch. Gives us error like
+
+    "error: the branch 'deleteMe' is not fully merged.
+    If you are sure you want to delete it, run 'git branch -D deleteMe'"
+
+REASON : ?
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Normal Delete Command : 
+    git branch -d deleteMe
+
+Forcefully deleting command :
+    git branch -D deleteMe
+
+
+*** Branch Renaming ***
+Though we cannot delete a branch from being in that branch, but we still can rename that branch while being in there. 
+
+command :
+    git branch -m newBranchName
+
+
+*** Branch Merging ***
+Merging of a branch can be comprehended as movement of a branch pointer from one point to another.
+
+-> While merging two branches if any conflict occurs, then we first need to resolve that conflict and then perfom commit to save the changes. On completing commit, the merge waiting to be resolved take place. And merging completes.
+
+-> There are mainly two big workflows for merging the branch:
+    1) Merging
+    2) Rebasing
+
+ALTERNATE COMMAND :
+There is another command to create a branch (which also takes us directly into the newly created branch).
+    git checkout -b newBranch
+
+As long as changes from different branches do not collide, automatically merging takes place.
+
+    git merge <branch-name>
+    ~ To merge the branch 
+
+    git merge --no-ff <branch-name>
+    ~ To merge without making a fast-forward
+
+
+*** HEAD ***
+HEAD points to a branch reference.
+A Branch reference points to the last commit of a branch(simply a chain of commits).
+Whenever we switch to another branch, the HEAD points to that specific branchs' branch reference. Hence it(HEAD) does not directly point to the commit.
+
+
+*** Detached HEAD Problem ***
+When we perform switching to previous commit through "git checkout [commit_hash]", we get there but now instead of the Branch reference our HEAD directly points there. And that is what called a "Detached HEAD Problem". As our HEAD is now detached from the branch reference.
+
+It is also refered as "Detached HEAD State".
+
+We can create new branch from there or can switch to any other existing branch and edit something to try out different things. We can also come back to master by hitting "git switch master" which sets the HEAD again to the master branchs' branch reference.
+
+
+*** Adding Git Remote ***
+    
+    git remote -v 
+    ~ To check for existing remotes in current directory
+
+    git remote add <name> <url>
+    ~ name: a label given to the remote url which is used to refer the remote repo in current working directory
+    (by convention it is "origin" but we can name it as we want)
+
+    git push <remote> <branch>
+    ~ remote: the remote name we gave while adding the remote to local repo
+    ~ branch: the branch we wanna push to the remote repo
+
+    git push <remote> <local-branch>:<remote-branch>
+    ~ Whenever we want to rename a branch to a different name for out remote repo
+    (If here the remote-branch name is the name which already exists on remote repo, then the changes of local-branch will be pushed to existing branch) 
+
+    git push -u <remote> <branch>
+    
+    -> (-u) stands for upstream. Setting up upstream simply means we want git to remember to map local branch to the origin remote branch. So that second time we can write only git push to push changes. It will automatically comprehend and push the changes into the respective remote branch set as upstream.
+
+-> Once we clone a repo in out local repo, we have something called "Remote Tracking Branch" which is a pointer to the last commit associated with remote repo. 
+
+for example, if we have current local repo connected with a remote github repo, then there are two pointers on our local branch - one is master and other one is origin/master (pointer tracking progress of remote commits)
+
+-> When we clone a remote repo, our main or master branch is only connected to the respective main or master branch of the remote branch. There may exist other branches on remote repo but they are created automatically on our local repo. 
+
+If we want to make those other branches in our local repo, then we may hit below command
+
+    git switch <remote-branch-name>
+
+It will automatically create a branch with same name on our local repo and connect it to our remote branch. Previously we use to do it using following version of checkout command.
+
+    git checkout --track <remote-name>/<remote-branch-name>
+    ex: git checkout --track origin/puppies
+
+
+Commands :
+    git fetch <remote>
+    ~ takes changes from remote repo to the local repo, *but without altering our branch of local repo*.
+    It just updates our local version of remote repo, but does not apply those changes into local branch 
+
+    git fetch <remote> <branch>
+    ~ takes changes from the specific branch of remote repo
+
+    git pull <remote> <branch>
+    ~ pulls the branch from remote repo to the local repo and also updates the branch of local repo with latest updates.
+
+    NOTE:- We can instead use git pull too for pulling the remote branch. git will automatically figure out the branch.
+
+
+*** Collaboration Workflows ***
+
+1) Centralized Workflow :
+-> Every collaborator works only on one branch (main branch).
+
+2) Feature Workflow :
+-> No Collaborator works on main branch. Everyone works on the feature branch.
+-> Treats master/main branch as official project history.
+
+
+Features not of git :
+-> Pull request, fork
+
+
+*** Rebasing ***
+-> Rebasing mainly is helpful in two ways:
+1) Alternative to Merging
+2) As a cleanup tool to edit commit history
+
+-> Branch Rebasing does the same work like merge but it *rewrites* the commit history. 
+
+    git rebase master
+    ~ we hit this command from being in another branch than master.
+    ~ It means we are rebasing our feature branch onto master branch which flattens the commit history by moving all the master branch commits to the bottom and placing all the feature branch commits on top of it.
+
+-> Normally a feature branch may contain lot of merge commits of master branch which increases number of merge commits in the commit history and clutters it. By applying rebase command, we flatten the commit history which looks nicer while we see.
+
+-> When while rebasing conflicts occur between two files, then after solving it and adding the change we need to run following command,
+
+        git rebase --continue
+
+-----------------------
+NOTE: Here after applying rebasing, all the commit hashes of the feature branch will be changed. 
+-----------------------
+
+-----------------------
+NOTE: Also fter applying rebasing to edit commit history, all the commit hashes after the edited commit will be changed. 
+-----------------------
+
+
+*** Git Tags ***
+-> Git tags are pointers that refer to particular point in git history to mark a particular moment. Tag just points to a commit in branch. We can assign multiple tags to one commit.
+
+-> There are two types of tag:
+    1) Lightweight tags - a label that pointing to a commit
+    2) Annotated tags - stores extra metadata including author's name, email, date and tagging message
+
+-> We can reach a tag by command 
+    git checkout <tag-name>
+which leaves us in detached head situation.
+
+Commands :
+    git tag
+    ~ lists all tags
+
+    git tag <tag-name>
+    ~ makes a new tag
+
+    git tag -a <tag-name>
+    ~ makes a new annotated tag
+
+    git show <tag-name>
+    ~ shows all information about tag
+
+    git tag <tag-name> <commit>
+    ~ to tag a specific commit
+
+    git tag -f <tag-name> <commit>
+    ~ to forcefully tag a specific commit (generally to change the position of tag from current commit to another commit)
+
+    git tag -d <tag-name>
+    ~ to delete a tag
+
+    git push <remote-name> --tags
+    ~ to push all tags at once to the remote repo
+
+    git push <remote-name> <tag-name>
+    ~ to push a tag into remote repo 
+
+
+-----------------------
+NOTE: By default, tags are not pushed with the changes we push on remote repo
+-----------------------
+
+
+*********** EXTRA KNOWLEDGE STUFF ***********
+
+1. git hash-object <file>
+~ It takes the file as input and store it in ./git/objects folder and returns generated 40 characters SHA-1 hash which refers it. The hash generated here is changed based on the content of the file. 
+
+It is stores in .git/object folder in following format
+- A folder is created by taking first two characters from the generated hash
+- And a file is created inside it which is named with rest 38 characters
+
+2. echo "hello" | git hash-object --stdin -w
+~ It takes hello as input and generates hash of it and -w option stands for write which stores this hello string in objects folder.
+
+
+=> .git/object folder :-
+
+- It contains various files which includes the files we push into the repository. 
+- When we make a commit, a new file is created by taking first two chatacters of the hash and then rest hash is stored in this file. 
+
+- These type of files are created for following actions:
+1. commit
+2. tree
+3. blob
+
+-------------------------
+* tree: 
+- A tree comprises of various files called as "blob" and sub-trees which is nothing but a structure of files & folders we push into the respository.
+
+* blob:
+- Git blob are binary large objects which just stores the content of the file(not even filename, just the content of the file).
+-------------------------
+
+- blob and tree files in .git/objects are only created when we make a commit into the repository, and their generated hashes change when we change the content inside them.
+
+
+*** Reflog ***
+
+    git reflog show HEAD
+    ~ Keeps log of all the changes we have done with the HEAD pointer.
+
+- log shows us the clear history or log of the actions we have performed. The stuff which has been reset, rebase, or lost due to any reason is not shown in log but may be present and shown in reflog. 
+
+- Changing from one branch to another will also be logged into the reflog log entries.
+
+- Latest entry comes at very top and to oldest entry is at the very bottom.
+
+    git reflog show HEAD@{10}
+    ~ It shows all the entries except last(latest) 10 entries. (As latest entry is named HEAD@{0})
+
+    git diff HEAD HEAD@{2}
+    ~ To compare two different HEAD reflogs.
+
+    git diff HEAD HEAD@{yesterday}  [or]  git diff HEAD HEAD@{2.days.ago}  [or] git reflog master@{one.day.ago}
+    ~ all the git commands can be used like this and the thing is we can specify time references in those square braces.
